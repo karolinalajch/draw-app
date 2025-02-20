@@ -12,20 +12,35 @@
         button {
             margin-top: 10px;
         }
+        #prompt {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <h2>Draw Your Response:</h2>
-    <canvas id="drawingCanvas" width="500" height="500"></canvas>
+
+    <!-- Display the fixed prompt -->
+    <div id="prompt">Draw a cat playing with a ball!</div>
+
+    <!-- Horizontal canvas (larger width than height) -->
+    <canvas id="drawingCanvas" width="800" height="400"></canvas>
     <br>
     <button onclick="clearCanvas()">Clear</button>
     <button onclick="submitDrawing()">Submit</button>
 
     <script>
+        // Set up drawing canvas
         let canvas = document.getElementById("drawingCanvas");
         let ctx = canvas.getContext("2d");
         let drawing = false;
 
+        // Display the fixed prompt
+        const currentPrompt = "Fear has a shape. What does it look like?";
+        document.getElementById("prompt").innerText = currentPrompt;
+
+        // Drawing functionality
         canvas.addEventListener("mousedown", () => drawing = true);
         canvas.addEventListener("mouseup", () => drawing = false);
         canvas.addEventListener("mousemove", draw);
@@ -45,28 +60,22 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
 
-    function submitDrawing() {
-    let image = canvas.toDataURL("image/png"); // Convert drawing to a base64 image
+        // Submit the drawing
+        function submitDrawing() {
+            // Convert the canvas to a PNG image (base64)
+            let image = canvas.toDataURL("image/png");
 
-    // Send the image to Google Apps Script
-    fetch('https://script.google.com/macros/s/AKfycbwKGgupWgaMJWht1zc3-WM7qixDXx1qkTqkcVWqN2vpCBSlcNqrkpukE9tVhnSVv4_I/exec', {
-        method: 'POST',
-        body: new URLSearchParams({
-            image: image, // Send the base64 image as a parameter
-            prompt: currentPrompt // Send the current prompt for reference (optional)
-        })
-    })
-    .then(response => response.text())
-    .then(data => {
-        alert('Drawing uploaded successfully!');
-        clearCanvas(); // Clear the canvas after submission
-        setNewPrompt(); // Show a new prompt after submission
-    })
-    .catch(error => {
-        console.error('Error uploading drawing:', error);
-        alert('Failed to upload drawing.');
-    });
-}
+            // Create a downloadable link for the PNG file
+            let a = document.createElement("a");
+            a.href = image;  // Image in base64 format
+            a.download = "drawing.png";  // Set the download filename
+            document.body.appendChild(a);  // Append the anchor tag to the body
+            a.click();  // Trigger the download
+            document.body.removeChild(a);  // Remove the anchor tag
+
+            // Clear the canvas after submission
+            clearCanvas();
+            alert("Your drawing has been saved as a PNG file.");
         }
     </script>
 </body>
