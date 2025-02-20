@@ -45,14 +45,28 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
 
-        function submitDrawing() {
-            let image = canvas.toDataURL("image/png"); // Convert drawing to an image
-            let link = document.createElement("a");
-            link.href = image;
-            link.download = "drawing.png"; // Allows users to download the image
-            link.click();
+    function submitDrawing() {
+    let image = canvas.toDataURL("image/png"); // Convert drawing to a base64 image
 
-            // For storing in Google Drive, you'd need a backend or Google Apps Script
+    // Send the image to Google Apps Script
+    fetch('https://script.google.com/macros/s/AKfycbwKGgupWgaMJWht1zc3-WM7qixDXx1qkTqkcVWqN2vpCBSlcNqrkpukE9tVhnSVv4_I/exec', {
+        method: 'POST',
+        body: new URLSearchParams({
+            image: image, // Send the base64 image as a parameter
+            prompt: currentPrompt // Send the current prompt for reference (optional)
+        })
+    })
+    .then(response => response.text())
+    .then(data => {
+        alert('Drawing uploaded successfully!');
+        clearCanvas(); // Clear the canvas after submission
+        setNewPrompt(); // Show a new prompt after submission
+    })
+    .catch(error => {
+        console.error('Error uploading drawing:', error);
+        alert('Failed to upload drawing.');
+    });
+}
         }
     </script>
 </body>
